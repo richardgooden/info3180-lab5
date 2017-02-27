@@ -42,18 +42,22 @@ def login():
             username = form.username.data
             password = form.password.data
 
-            user = UserProfile.query.filter_by(username=username, password=password)\
-            .first()
+            user = UserProfile.query.filter_by(username=username, password=password).first() 
             
             if user is not None:
                 # get user id, load into session
                 login_user(user)
                 flash('Logged in successfully.', 'success')
                 # remember to flash a message to the user
-                return redirect(url_for("secure-page")) # they should be redirected to a secure-page route instead
+                return redirect(url_for("secure_page")) # they should be redirected to a secure-page route instead
             else:
                 flash('Username or Password is incorrect.', 'danger')
     return render_template("login.html", form=form)
+    
+@app.route('/secure_page/')
+@login_required
+def secure_page():
+    return render_template('secure_page.html')
 
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
