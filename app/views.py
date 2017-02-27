@@ -29,7 +29,7 @@ def about():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
-    if request.method == "POST":
+    if request.method == "POST" and form.validate_on_submit():
         # change this to actually validate the entire form submission
         # and not just one field
         if form.username.data:
@@ -39,12 +39,20 @@ def login():
             # and password submitted
             # store the result of that query to a `user` variable so it can be
             # passed to the login_user() method.
+            username = form.username.data
+            password = form.password.data
 
-            # get user id, load into session
-            login_user(user)
-
-            # remember to flash a message to the user
-            return redirect(url_for("home")) # they should be redirected to a secure-page route instead
+            user = UserProfile.query.filter_by(username=username, password=password)\
+            .first()
+            
+            if user is not None:
+                # get user id, load into session
+                login_user(user)
+                flash('Logged in successfully.', 'success')
+                # remember to flash a message to the user
+                return redirect(url_for("secure-page")) # they should be redirected to a secure-page route instead
+            else:
+                flash('Username or Password is incorrect.', 'danger')
     return render_template("login.html", form=form)
 
 # user_loader callback. This callback is used to reload the user object from
